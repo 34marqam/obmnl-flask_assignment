@@ -28,7 +28,7 @@ def add_transaction():
             'amount': float(request.form['amount'])
         }
         transactions.append(transaction)
-        return redirect(url_for('get_transaction'))
+        return redirect(url_for('get_transactions'))
 
 # Update operation
 @app.route('/edit/<int:transaction_id>', methods=['GET', 'POST'])
@@ -55,9 +55,19 @@ def delete_transaction(transaction_id):
 @app.route('/search', methods=['GET', 'POST'])
 def search_transactions():
     if request.method == 'POST':
-        min = float(request.form['minimum'])
-        max = float(request.form['maximum'])
-        
+        min = float(request.form['min_amount'])
+        max = float(request.form['max_amount'])
+        # filtered_transactions = transactions.filter(lambda transaction: (transaction['amount']>=min and transaction['amount']<=max))
+        filtered_transactions = [x for x in transactions if (x['amount']>=min and x['amount']<=max)]
+        return render_template('transactions.html', transactions=filtered_transactions)
+    return render_template('search.html')
+
+@app.route('/balance')
+def total_balance():
+    sum = 0
+    for tr in transactions:
+        sum += tr['amount']
+    return render_template('transactions.html', transactions=transactions, total=f'Total Balance: {sum}')
 
 # Run the Flask app
 if __name__ == '__main__':
